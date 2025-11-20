@@ -100,13 +100,42 @@ function handleWin() {
     elements.resultText.textContent = "YOU WIN!";
     elements.resultText.style.color = "var(--success-color)";
     elements.playerHand.classList.add('winner-anim');
+    document.body.classList.add('winner-effect');
 
-    // Trigger Confetti
-    confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
+    // Trigger Confetti - Realistic
+    const count = 200;
+    const defaults = {
+        origin: { y: 0.7 },
         colors: ['#6366f1', '#ec4899', '#22d3ee', '#ffffff']
+    };
+
+    function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio)
+        }));
+    }
+
+    fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+    });
+    fire(0.2, {
+        spread: 60,
+    });
+    fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8
+    });
+    fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2
+    });
+    fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
     });
 }
 
@@ -154,6 +183,7 @@ function handleDraw() {
 function resetHandStyles() {
     elements.playerHand.classList.remove('winner-anim');
     elements.aiHand.classList.remove('winner-anim');
+    document.body.classList.remove('winner-effect');
 }
 
 function updateScoreboard() {
