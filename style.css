@@ -325,7 +325,7 @@ body {
     font-size: 3rem;
     z-index: 1000;
     pointer-events: none;
-    animation: fall-trash 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: fall-trash 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 @keyframes fall-trash {
