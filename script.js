@@ -3,7 +3,8 @@ const state = {
     playerScore: 0,
     aiScore: 0,
     drawScore: 0,
-    isPlaying: false
+    isPlaying: false,
+    timeouts: [] // Store timeout IDs
 };
 
 // DOM Elements
@@ -37,9 +38,33 @@ function init() {
     elements.resetBtn.addEventListener('click', resetGame);
 }
 
+// Clear all effects and timeouts
+function clearAllEffects() {
+    // Clear all timeouts
+    state.timeouts.forEach(id => clearTimeout(id));
+    state.timeouts = [];
+
+    // Reset Confetti
+    if (window.confetti) {
+        confetti.reset();
+    }
+
+    // Remove Trash Items
+    document.querySelectorAll('.trash-item').forEach(item => item.remove());
+
+    // Remove CSS Classes
+    document.body.classList.remove('clash-effect', 'winner-effect');
+    elements.playerHand.classList.remove('winner-anim');
+    elements.aiHand.classList.remove('winner-anim');
+}
+
 // Handle Player Choice
 function handleChoice(playerChoice) {
     if (state.isPlaying) return;
+
+    // Clear previous effects immediately
+    clearAllEffects();
+
     state.isPlaying = true;
 
     // Reset styles
@@ -57,7 +82,7 @@ function handleChoice(playerChoice) {
     }, 100);
 
     // Wait for animation
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
         clearInterval(rouletteInterval);
         const aiChoice = getAiChoice();
         resolveRound(playerChoice, aiChoice);
@@ -65,6 +90,7 @@ function handleChoice(playerChoice) {
         elements.playerHand.classList.remove('shake');
         state.isPlaying = false;
     }, 1500);
+    state.timeouts.push(timeoutId);
 }
 
 // Get Random AI Choice
@@ -152,7 +178,7 @@ function triggerTrashRain() {
     const count = 15;
 
     for (let i = 0; i < count; i++) {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             const trash = document.createElement('div');
             trash.classList.add('trash-item');
             trash.textContent = trashIcons[Math.floor(Math.random() * trashIcons.length)];
@@ -161,10 +187,12 @@ function triggerTrashRain() {
             document.body.appendChild(trash);
 
             // Cleanup
-            setTimeout(() => {
+            const removeTimeoutId = setTimeout(() => {
                 trash.remove();
             }, 5000);
+            state.timeouts.push(removeTimeoutId);
         }, i * 200);
+        state.timeouts.push(timeoutId);
     }
 }
 
@@ -175,9 +203,10 @@ function handleDraw() {
 
     // Trigger Clash Effect
     document.body.classList.add('clash-effect');
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
         document.body.classList.remove('clash-effect');
     }, 500);
+    state.timeouts.push(timeoutId);
 }
 
 function resetHandStyles() {
@@ -193,10 +222,12 @@ function updateScoreboard() {
 }
 
 function resetGame() {
+    clearAllEffects();
     state.playerScore = 0;
     state.aiScore = 0;
     state.drawScore = 0;
     updateScoreboard();
+
 
     resetHandStyles();
     elements.playerHand.textContent = hands.rock;
